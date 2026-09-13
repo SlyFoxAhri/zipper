@@ -1,51 +1,128 @@
 #include <stdio.h>
 #include "main.h"
 
-u8 id[2];
-
 int main(int nums, char* name[])
 {
+  u8 isOK;
+  u8 id[2];
+  u8 cm;
+  u8 flg;
+  bool flgs[8]; //iterate to see which flags are set 
+  int val = 1; //00000001
+  int bshift = 0;
+  bool isText;
+  bool isFhcrc;
+  bool isExtra;
+  bool isName;
+  bool isComment;
+  u16 extLen;
+  
   char* myFile = name[1];
   FILE* filepointer = fopen(myFile, "rb");
   
   if(!filepointer)
   {
     puts("No file provided");
-    return 1;
+    isOK = 1;
+    goto leave;
   }
 
   fread(id, 1, 2, filepointer);
   if(id[0] == 31 && id[1] == 139)
   {
-    printf("this indeed is a gzip file...\n");
+    puts("This indeed is a gzip file...");
   }
-  
-  for(int i = 0; i <= 1 ; i++)
+  else
   {
-    printf("%d\n", id[i]);
+    isOK = 1;
+    goto leave;
   }
 
+  fread(&cm, 1, 1, filepointer);
+  if(cm == 8)
+  {
+    puts("Happens to be comressed using the deflate method...");
+  }
+  else
+  {
+    isOK = 1;
+    goto leave;
+  }
+
+  fread(&flg, 1, 1, filepointer);
+  for(int bshift = 0; bshift < sizeof flgs; bshift++)
+  {
+    flgs[bshift] = isBitSet(val, bshift);
+    val *= 2;
+  }
+  
+  if(flgs[0])
+  {
+    isText = true;
+  }
+  if(flgs[1])
+  {
+    isFhcrc = true;
+  }
+  if(flgs[2])
+  {
+    isExtra = true;
+  }
+  if(flgs[3])
+  {
+    isName = true;
+  }
+  if(flgs[4])
+  {
+    isComment = true;
+  }
+  if(flgs[5])
+  {
+    isOK = 1;
+    goto leave;
+  }
+  if(flgs[6])
+  {
+    isOK = 1;
+    goto leave;
+  }
+  if(flgs[7])
+  {
+    isOK = 1;
+    goto leave;
+  }
+
+  if(isExtra)
+  {
+    //first 2 bytes is size;
+    fread(&extLen, sizeof extLen, 1, filepointer);
+    //skip extra fied
+    // not sure if offdet is right
+    fseek(filepointer, extLen, SEEK_CUR); 
+  }
+
+  if(isName)
+  {
+    //skip till first null term
+  }
+
+  if(isComment)
+  {
+    //skip till first null term
+  }
+  
+
+  isOK = 0;
+  leave:  
   fclose(filepointer);
-  return 0;
+  
+  return isOK;
 }
 
-u8 binaryToDecimal(u8* binary)
+bool isBitSet(u8 value, u8 bitshift)
 {
-  u8 decimal;
-  u8 base = 1;
-  //this changed irs endianness
-  // what is endianness of gzip fread??
-  
-  u8 binary_num = binary[0] + (binary[1] << 1) + (binary[2] << 2) + (binary[3] << 3) + (binary[4] << 4) + (binary[5] << 5) + (binary[6] << 6) + (binary[7] << 7);
+  bool resoult = (value & (1 << bitshift)) != 0;
 
-  printf("%d\n", binary_num);
-  
-  while(binary_num)
-  {
-    u8 last_digit = binary_num % 10;
-  }
-
-  
-
-  return decimal;
+  return resoult;
 }
+

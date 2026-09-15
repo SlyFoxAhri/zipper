@@ -141,7 +141,7 @@ int main(int nums, char* name[])
   bool isEnd = false;
   u8 firstByte;
   u8 firstBit;
-  u8 cmpType = 0x11;
+  u8 cmpType = 0x03;
   u16 nc_len = 0;
   char* read_buff;
 

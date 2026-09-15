@@ -13,8 +13,8 @@ typedef enum
 {
   NO_COMPRESSION = 0X00,
   FIX_HUFFMAN = 0X01,
-  DYNAMIC_HUFFMAN = 0X10,
-  NOT_VALID = 0X11
+  DYNAMIC_HUFFMAN = 0X02,
+  NOT_VALID = 0X03
 } Compression_Type;
 
 bool isBitSet(u8 val, u8 bshift);

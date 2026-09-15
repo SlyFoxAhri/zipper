@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <threads.h>
@@ -16,6 +17,7 @@ int main(int nums, char* name[])
   bool isExtra = false;
   bool isName = false;
   bool isComment = false;
+  char ognlName[256];
   u16 extLen = 0;
   u32 mTime = 0;
   u8 xfl = 0;
@@ -64,27 +66,22 @@ int main(int nums, char* name[])
   if(flgs[0] == 1)
   {
     isText = true;
-    puts("text");
   }
   if(flgs[1] == 1)
   {
     isFhcrc = true;
-    puts("crc");
   }
   if(flgs[2] == 1)
   {
     isExtra = true;
-    puts("extra");
   }
   if(flgs[3] == 1)
   {
     isName = true;
-    puts("name");
   }
   if(flgs[4] == 1)
   {
     isComment = true;
-    puts("comment");
   }
   if(flgs[5] == 1)
   {
@@ -104,7 +101,6 @@ int main(int nums, char* name[])
   fread(&xfl, sizeof xfl, 1, filepointer); //2 or 4 determines compression algorithm
 
   fread(&os, sizeof os, 1, filepointer);
-  printf("%d\n", os);
   
   if(isExtra)
   {
@@ -115,10 +111,14 @@ int main(int nums, char* name[])
 
   if(isName)
   {
-    int ch = fgetc(filepointer);
+    int ch = 1;
+    int i = 0;
     while(ch != 0)
     {
       ch = fgetc(filepointer);
+      ognlName[i] = (char)ch;
+      i++;
+      printf("%c", ognlName[i]);
     }
   }
 
@@ -137,7 +137,51 @@ int main(int nums, char* name[])
   }
 
   //decompression now
+  u8 eof = 1;
+  bool isEnd = false;
+  u8 firstByte;
+  u8 firstBit;
+  u8 cmpType = 0x11;
+  u16 nc_len = 0;
+  char* read_buff;
+
+  FILE* newFilepointer = fopen(ognlName, "wb");
+  if(!newFilepointer)
+  {
+    goto error;
+  }
   
+  while(!isEnd)
+  {
+  //READ IN BITS NOT BYTES!!!
+    fread(&firstByte, sizeof firstByte, 1, filepointer);
+    firstBit = firstByte >> 7;
+    firstByte = firstByte << 1;
+    cmpType = firstByte >> 6;
+    switch(cmpType)
+    {
+      case NO_COMPRESSION:
+        fread(&nc_len, sizeof nc_len, 1, filepointer);
+        fseek(filepointer, 2, SEEK_CUR);
+        
+        read_buff = malloc(nc_len);
+        fread(read_buff, nc_len, 1, filepointer);
+        
+        fputs(read_buff, newFilepointer);
+        break;
+      case FIX_HUFFMAN:
+        //do decode
+        break;
+      case DYNAMIC_HUFFMAN:
+        //do decode
+        break;
+      case NOT_VALID:
+        goto error;
+        break;
+    }
+  }
+  
+  fclose(newFilepointer);
 
   goto leave;
   

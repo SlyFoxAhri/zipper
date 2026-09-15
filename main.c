@@ -118,7 +118,6 @@ int main(int nums, char* name[])
       ch = fgetc(filepointer);
       ognlName[i] = (char)ch;
       i++;
-      printf("%c", ognlName[i]);
     }
   }
 
@@ -155,8 +154,10 @@ int main(int nums, char* name[])
   {
   //READ IN BITS NOT BYTES!!!
     fread(&firstByte, sizeof firstByte, 1, filepointer);
-    firstBit = firstByte >> 7;
-    firstByte = firstByte << 1;
+    //make sum function 
+    firstBit = firstByte << 7;
+    isEnd = firstBit >> 7;
+    firstByte = firstByte >> 1;
     cmpType = firstByte >> 6;
     switch(cmpType)
     {

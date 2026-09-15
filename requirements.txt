@@ -1,3 +1,11 @@
 check id1 = 31, id2  139, cm = 8 and return error if these have incorrect values.
 check FLG and read out data or skip optional fields
 give error is resserved bits non zero
+
+decomp checker
+- get a byte and check the first 7 bits
+- look if it is bigger or smaller than edge of 7codes
+- if not look at the next bit and so on
+
+but what do i do when fhe bits shift??
+how do i keep track of how many i shifted??

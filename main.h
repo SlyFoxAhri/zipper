@@ -18,3 +18,5 @@ typedef enum
 } Compression_Type;
 
 bool isBitSet(u8 val, u8 bshift);
+
+  
